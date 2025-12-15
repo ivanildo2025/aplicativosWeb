@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de QR Code Avançado</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Reset e configurações gerais */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Container principal */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cabeçalho */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      grid-column: 1 / -1;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Painel de controle */
+    .control-panel {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 35px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .panel-title {
+      font-size: 1.5rem;
+      color: #38bdf8;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Campo de entrada */
+    .input-group {
+      margin-bottom: 25px;
+    }
+
+    .input-label {
+      display: block;
+      margin-bottom: 10px;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 18px;
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 12px;
+      color: #e2e8f0;
+      font-size: 1rem;
+      resize: vertical;
+      transition: all 0.3s ease;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+
+    /* Botões de ação rápida */
+    .quick-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .quick-btn {
+      padding: 12px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 10px;
+      color: #cbd5e1;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .quick-btn:hover {
+      background: #334155;
+      transform: translateY(-2px);
+    }
+
+    /* Opções de personalização */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .option-group {
+      margin-bottom: 20px;
+    }
+
+    .option-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #cbd5e1;
+      font-size: 0.95rem;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      padding: 12px;
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 10px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+    }
+
+    select:focus, input[type="range"]:focus {
+      outline: none;
+      border-color: #38bdf8;
+    }
+
+    .range-value {
+      display: inline-block;
+      margin-left: 10px;
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    /* Cores personalizadas */
+    .color-options {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .color-option.active {
+      border-color: #fff;
+      transform: scale(1.1);
+    }
+
+    .custom-color {
+      position: relative;
+    }
+
+    .custom-color input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    /* Painel de visualização */
+    .preview-panel {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 35px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .qr-container {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      position: relative;
+      min-width: 280px;
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #qrCanvas {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    /* Botão gerar */
+    .generate-btn {
+      background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+      color: #020617;
+      border: none;
+      padding: 18px 35px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.3);
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(56, 189, 248, 0.4);
+    }
+
+    .generate-btn:active {
+      transform: translateY(-1px);
+    }
+
+    /* Botões de download */
+    .download-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      width: 100%;
+    }
+
+    .download-btn {
+      padding: 15px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .download-btn.png {
+      background: #10b981;
+      color: white;
+    }
+
+    .download-btn.svg {
+      background: #8b5cf6;
+      color: white;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    /* Informações do QR Code */
+    .qr-info {
+      background: rgba(30, 41, 59, 0.6);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 25px;
+      width: 100%;
+    }
+
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #334155;
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      grid-column: 1 / -1;
+    }
+
+    footer a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .container {
+        gap: 25px;
+      }
+
+      .control-panel, .preview-panel {
+        padding: 25px;
+      }
+
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-buttons {
+        grid-template-columns: 1fr;
+      }
+
+      .download-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .panel-title {
+        font-size: 1.3rem;
+      }
+    }
+
+    /* Animações */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Estilo para o loader */
+    .loader {
+      display: none;
+      width: 50px;
+      height: 50px;
+      border: 5px solid #334155;
+      border-top: 5px solid #38bdf8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><i class="fas fa-qrcode"></i> Gerador de QR Code</h1>
+    <p class="subtitle">Crie QR Codes personalizados para URLs, textos, contatos, Wi-Fi, PIX e muito mais. Totalmente gratuito e funcional.</p>
+  </header>
+
+  <div class="container">
+    <!-- Painel de controle -->
+    <div class="control-panel">
+      <h2 class="panel-title"><i class="fas fa-sliders-h"></i> Configurações</h2>
+
+      <div class="input-group">
+        <label class="input-label" for="qrText">
+          <i class="fas fa-edit"></i> Conteúdo do QR Code
+        </label>
+        <textarea id="qrText" placeholder="Digite texto, URL, PIX, WhatsApp, Wi-Fi, ou qualquer informação que deseja codificar...">https://exemplo.com</textarea>
+      </div>
+
+      <div class="quick-buttons">
+        <button class="quick-btn" onclick="setContent('https://exemplo.com')">
+          <i class="fas fa-link"></i> URL Exemplo
+        </button>
+        <button class="quick-btn" onclick="setContent('PIX: 123.456.789-00')">
+          <i class="fas fa-qrcode"></i> PIX
+        </button>
+        <button class="quick-btn" onclick="setContent('WIFI:S:MinhaRede;T:WPA;P:MinhaSenha;;')">
+          <i class="fas fa-wifi"></i> Wi-Fi
+        </button>
+        <button class="quick-btn" onclick="setContent('MENSAGEM:Olá! Este é um QR Code de exemplo.')">
+          <i class="fas fa-comment"></i> Texto
+        </button>
+      </div>
+
+      <div class="options-grid">
+        <div class="option-group">
+          <label class="option-label" for="qrSize">
+            <i class="fas fa-expand-alt"></i> Tamanho
+          </label>
+          <input type="range" id="qrSize" min="100" max="500" value="250" step="10">
+          <span class="range-value" id="sizeValue">250px</span>
+        </div>
+
+        <div class="option-group">
+          <label class="option-label" for="qrErrorCorrection">
+            <i class="fas fa-shield-alt"></i> Correção de Erro
+          </label>
+          <select id="qrErrorCorrection">
+            <option value="L">Baixa (7%)</option>
+            <option value="M">Média (15%)</option>
+            <option value="Q">Alta (25%)</option>
+            <option value="H">Muito Alta (30%)</option>
+          </select>
+        </div>
+
+        <div class="option-group">
+          <label class="option-label">
+            <i class="fas fa-palette"></i> Cor do QR Code
+          </label>
+          <div class="color-options">
+            <div class="color-option active" style="background-color: #000000;" onclick="setColor('#000000')"></div>
+            <div class="color-option" style="background-color: #1e40af;" onclick="setColor('#1e40af')"></div>
+            <div class="color-option" style="background-color: #dc2626;" onclick="setColor('#dc2626')"></div>
+            <div class="color-option" style="background-color: #059669;" onclick="setColor('#059669')"></div>
+            <div class="color-option" style="background-color: #7c3aed;" onclick="setColor('#7c3aed')"></div>
+            <div class="color-option custom-color" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);">
+              <input type="color" id="customColor" value="#38bdf8" onchange="setColor(this.value)">
+            </div>
+          </div>
+        </div>
+
+        <div class="option-group">
+          <label class="option-label">
+            <i class="fas fa-background"></i> Cor do Fundo
+          </label>
+          <div class="color-options">
+            <div class="color-option active" style="background-color: #ffffff;" onclick="setBgColor('#ffffff')"></div>
+            <div class="color-option" style="background-color: #f0f9ff;" onclick="setBgColor('#f0f9ff')"></div>
+            <div class="color-option" style="background-color: #fef2f2;" onclick="setBgColor('#fef2f2')"></div>
+            <div class="color-option" style="background-color: #f0fdf4;" onclick="setBgColor('#f0fdf4')"></div>
+            <div class="color-option" style="background-color: #faf5ff;" onclick="setBgColor('#faf5ff')"></div>
+            <div class="color-option custom-color" style="background: linear-gradient(45deg, #c7d2fe, #fbcfe8);">
+              <input type="color" id="customBgColor" value="#ffffff" onchange="setBgColor(this.value)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="generate-btn" onclick="generateQR()">
+        <i class="fas fa-bolt"></i> Gerar QR Code
+      </button>
+    </div>
+
+    <!-- Painel de visualização -->
+    <div class="preview-panel">
+      <h2 class="panel-title"><i class="fas fa-eye"></i> Visualização</h2>
+
+      <div class="qr-container fade-in" id="qrContainer">
+        <canvas id="qrCanvas" width="250" height="250"></canvas>
+        <div class="loader" id="qrLoader"></div>
+      </div>
+
+      <div class="download-buttons">
+        <button class="download-btn png" onclick="downloadPNG()">
+          <i class="fas fa-download"></i> Baixar PNG
+        </button>
+        <button class="download-btn svg" onclick="downloadSVG()">
+          <i class="fas fa-download"></i> Baixar SVG
+        </button>
+      </div>
+
+      <div class="qr-info">
+        <div class="info-item">
+          <span>Tipo:</span>
+          <span id="infoType">Texto</span>
+        </div>
+        <div class="info-item">
+          <span>Tamanho:</span>
+          <span id="infoSize">250x250px</span>
+        </div>
+        <div class="info-item">
+          <span>Correção de Erro:</span>
+          <span id="infoErrorCorrection">Média (15%)</span>
+        </div>
+        <div class="info-item">
+          <span>Caracteres:</span>
+          <span id="infoChars">24</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2024 Gerador de QR Code Avançado • <a href="javascript:void(0)" onclick="showUsageTips()">Dicas de Uso</a> • <a href="javascript:void(0)" onclick="showAbout()">Sobre</a></p>
+    <p>Funciona 100% no navegador • Nenhum dado é enviado para servidores</p>
+  </footer>
+
+  <!-- Biblioteca QRCode.js -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+  <script>
+    // Configurações
+    let qrColor = '#000000';
+    let bgColor = '#ffffff';
+    let qrSize = 250;
+    let errorCorrection = 'M';
+
+    // Elementos DOM
+    const qrText = document.getElementById('qrText');
+    const qrCanvas = document.getElementById('qrCanvas');
+    const qrContainer = document.getElementById('qrContainer');
+    const qrLoader = document.getElementById('qrLoader');
+    const sizeSlider = document.getElementById('qrSize');
+    const sizeValue = document.getElementById('sizeValue');
+    const errorCorrectionSelect = document.getElementById('qrErrorCorrection');
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      // Atualizar valor do slider
+      sizeSlider.addEventListener('input', function() {
+        qrSize = parseInt(this.value);
+        sizeValue.textContent = qrSize + 'px';
+      });
+
+      // Atualizar correção de erro
+      errorCorrectionSelect.addEventListener('change', function() {
+        errorCorrection = this.value;
+      });
+
+      // Gerar QR Code inicial
+      generateQR();
+    });
+
+    // Função para definir conteúdo
+    function setContent(content) {
+      qrText.value = content;
+      generateQR();
+    }
+
+    // Função para definir cor
+    function setColor(color) {
+      qrColor = color;
+      
+      // Atualizar seleção visual
+      document.querySelectorAll('.color-option:not(.custom-color)').forEach(option => {
+        option.classList.remove('active');
+      });
+      
+      // Encontrar o botão com a cor correspondente
+      const colorOption = Array.from(document.querySelectorAll('.color-option:not(.custom-color)'))
+        .find(option => option.style.backgroundColor === color || 
+                        option.style.backgroundColor === rgbToHex(color));
+      
+      if (colorOption) {
+        colorOption.classList.add('active');
+      }
+      
+      generateQR();
+    }
+
+    // Função para definir cor de fundo
+    function setBgColor(color) {
+      bgColor = color;
+      
+      // Atualizar seleção visual
+      const bgOptions = document.querySelectorAll('.option-group:nth-child(4) .color-option:not(.custom-color)');
+      bgOptions.forEach(option => {
+        option.classList.remove('active');
+      });
+      
+      // Encontrar o botão com a cor correspondente
+      const colorOption = Array.from(bgOptions)
+        .find(option => option.style.backgroundColor === color || 
+                        option.style.backgroundColor === rgbToHex(color));
+      
+      if (colorOption) {
+        colorOption.classList.add('active');
+      }
+      
+      generateQR();
+    }
+
+    // Converter RGB para HEX
+    function rgbToHex(rgb) {
+      if (rgb.startsWith('#')) return rgb;
+      
+      const rgbValues = rgb.match(/\d+/g);
+      if (!rgbValues || rgbValues.length < 3) return rgb;
+      
+      const r = parseInt(rgbValues[0]).toString(16).padStart(2, '0');
+      const g = parseInt(rgbValues[1]).toString(16).padStart(2, '0');
+      const b = parseInt(rgbValues[2]).toString(16).padStart(2, '0');
+      
+      return `#${r}${g}${b}`;
+    }
+
+    // Gerar QR Code
+    function generateQR() {
+      const text = qrText.value.trim();
+      
+      if (!text) {
+        alert('Por favor, digite algum conteúdo para gerar o QR Code.');
+        return;
+      }
+
+      // Mostrar loader
+      qrLoader.style.display = 'block';
+      qrCanvas.style.display = 'none';
+
+      // Configurações do QR Code
+      const options = {
+        width: qrSize,
+        height: qrSize,
+        colorDark: qrColor,
+        colorLight: bgColor,
+        correctLevel: QRCode.CorrectLevel[errorCorrection]
+      };
+
+      // Limpar canvas anterior
+      const ctx = qrCanvas.getContext('2d');
+      ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+
+      // Gerar novo QR Code
+      setTimeout(() => {
+        try {
+          QRCode.toCanvas(qrCanvas, text, options, function(error) {
+            if (error) {
+              console.error(error);
+              alert('Erro ao gerar QR Code. Tente um conteúdo diferente.');
+              return;
+            }
+
+            // Atualizar informações
+            updateQRInfo(text);
+            
+            // Esconder loader e mostrar QR Code
+            qrLoader.style.display = 'none';
+            qrCanvas.style.display = 'block';
+            
+            // Aplicar animação
+            qrContainer.classList.remove('fade-in');
+            void qrContainer.offsetWidth; // Trigger reflow
+            qrContainer.classList.add('fade-in');
+          });
+        } catch (error) {
+          console.error(error);
+          qrLoader.style.display = 'none';
+          alert('Erro ao gerar QR Code.');
+        }
+      }, 300);
+    }
+
+    // Atualizar informações do QR Code
+    function updateQRInfo(text) {
+      // Tipo de conteúdo
+      let type = 'Texto';
+      if (text.startsWith('http')) type = 'URL';
+      if (text.startsWith('PIX')) type = 'PIX';
+      if (text.startsWith('WIFI')) type = 'Wi-Fi';
+      if (text.startsWith('tel:')) type = 'Telefone';
+      if (text.startsWith('mailto:')) type = 'E-mail';
+      
+      document.getElementById('infoType').textContent = type;
+      
+      // Tamanho
+      document.getElementById('infoSize').textContent = `${qrSize}x${qrSize}px`;
+      
+      // Correção de erro
+      const errorLabels = {
+        'L': 'Baixa (7%)',
+        'M': 'Média (15%)',
+        'Q': 'Alta (25%)',
+        'H': 'Muito Alta (30%)'
+      };
+      document.getElementById('infoErrorCorrection').textContent = errorLabels[errorCorrection];
+      
+      // Caracteres
+      document.getElementById('infoChars').textContent = text.length;
+    }
+
+    // Baixar como PNG
+    function downloadPNG() {
+      const link = document.createElement('a');
+      link.download = `qr-code-${Date.now()}.png`;
+      link.href = qrCanvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Baixar como SVG
+    function downloadSVG() {
+      const text = qrText.value.trim();
+      
+      QRCode.toString(text, {
+        type: 'svg',
+        colorDark: qrColor,
+        colorLight: bgColor,
+        correctLevel: QRCode.CorrectLevel[errorCorrection]
+      }, function(error, svg) {
+        if (error) {
+          alert('Erro ao gerar SVG.');
+          return;
+        }
+        
+        const blob = new Blob([svg], { type: 'image/svg+xml' });
+        const link = document.createElement('a');
+        link.download = `qr-code-${Date.now()}.svg`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+      });
+    }
+
+    // Funções auxiliares
+    function showUsageTips() {
+      alert('💡 Dicas de Uso:\n\n' +
+            '1. URLs: Inclua https:// para links da web\n' +
+            '2. PIX: Use formato "PIX: chave" ou "PIX: valor"\n' +
+            '3. Wi-Fi: Formato "WIFI:S:SSID;T:TIPO;P:SENHA;;"\n' +
+            '4. Telefone: "tel:+5511999999999"\n' +
+            '5. E-mail: "mailto:email@exemplo.com"\n' +
+            '6. Use correção de erro Alta para QR Codes que serão impressos');
+    }
+
+    function showAbout() {
+      alert('ℹ️ Sobre o Gerador de QR Code\n\n' +
+            'Este gerador cria QR Codes funcionais usando a biblioteca QRCode.js.\n' +
+            'Todos os processamentos são feitos localmente no seu navegador.\n' +
+            'Nenhum dado é enviado para servidores externos.\n\n' +
+            'Recursos:\n' +
+            '• Personalização completa de cores\n' +
+            '• Diferentes níveis de correção de erro\n' +
+            '• Download em PNG e SVG\n' +
+            '• Interface moderna e responsiva\n\n' +
+            '© 2024 Ferramentas Online');
+    }
+  </script>
+</body>
+</html>
