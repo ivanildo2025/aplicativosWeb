@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GPS & Localização - Desktop e Mobile</title>
+  <style>
+    /* Reset e configurações gerais */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+    }
+
+    /* Cabeçalho */
+    header {
+      width: 100%;
+      max-width: 1000px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #2d3748;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .subtitle {
+      color: #4a5568;
+      font-size: 1rem;
+      max-width: 800px;
+      margin: 0 auto 15px;
+      line-height: 1.5;
+    }
+
+    .device-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #e6f7ff;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: #1890ff;
+      border: 1px solid #91d5ff;
+    }
+
+    /* Container principal */
+    .app-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      width: 100%;
+      max-width: 1000px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Painéis */
+    .panel {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel-title {
+      color: #2d3748;
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Informações do dispositivo */
+    .device-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .info-card {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      border-left: 4px solid #1890ff;
+    }
+
+    .info-label {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .info-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    /* Botão principal */
+    .btn-get-location {
+      background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+      color: white;
+      border: none;
+      padding: 18px 25px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 5px 15px rgba(24, 144, 255, 0.4);
+    }
+
+    .btn-get-location:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(24, 144, 255, 0.6);
+    }
+
+    .btn-get-location:disabled {
+      background: linear-gradient(135deg, #cccccc 0%, #999999 100%);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Coordenadas */
+    .coordinates-container {
+      background: #f0f9ff;
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid #bae7ff;
+    }
+
+    .coordinates-display {
+      font-family: 'Courier New', monospace;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border: 1px solid #e8e8e8;
+      font-size: 0.95rem;
+    }
+
+    .coordinate-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .coordinate-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Mapa container */
+    .map-container {
+      width: 100%;
+      height: 300px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .map-placeholder {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .map-placeholder i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: #1890ff;
+    }
+
+    .accuracy-circle {
+      position: absolute;
+      border: 2px solid #1890ff;
+      border-radius: 50%;
+      background: rgba(24, 144, 255, 0.1);
+      pointer-events: none;
+    }
+
+    /* Botões de ação */
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .action-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .action-btn:disabled {
+      background: #e8e8e8;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .btn-copy {
+      background: #52c41a;
+      color: white;
+    }
+
+    .btn-share {
+      background: #1890ff;
+      color: white;
+    }
+
+    .btn-email {
+      background: #faad14;
+      color: white;
+    }
+
+    .btn-maps {
+      background: #722ed1;
+      color: white;
+    }
+
+    /* Precisão */
+    .accuracy-info {
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .accuracy-meter {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .meter-bar {
+      flex: 1;
+      height: 10px;
+      background: #f0f0f0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(to right, #ff4d4f, #faad14, #52c41a);
+      width: 0%;
+      transition: width 1s ease;
+    }
+
+    /* Status */
+    .status-container {
+      padding: 15px;
+      border-radius: 10px;
+      background: #f0f9ff;
+      border: 1px solid #bae7ff;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-container.error {
+      background: #fff2f0;
+      border: 1px solid #ffccc7;
+    }
+
+    .status-container.warning {
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+    }
+
+    .status-container.success {
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+    }
+
+    .status-icon {
+      font-size: 1.5rem;
+    }
+
+    .status-text {
+      flex: 1;
+      font-size: 0.95rem;
+    }
+
+    /* Dicas */
+    .tips-container {
+      background: #fff7e6;
+      border: 1px solid #ffd591;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .tips-title {
+      color: #fa8c16;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tips-list {
+      list-style: none;
+      padding-left: 5px;
+    }
+
+    .tips-list li {
+      margin: 8px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    .tips-list li:before {
+      content: "💡";
+      position: absolute;
+      left: 0;
+    }
+
+    /* Footer */
+    footer {
+      width: 100%;
+      max-width: 1000px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      font-size: 0.9rem;
+    }
+
+    /* Loader */
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      .device-info {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <h1>
+      <span style="color: #1890ff;">📍</span> Localizador GPS Universal
+    </h1>
+    <p class="subtitle">
+      Funciona em <strong>todos os dispositivos</strong> (computadores, celulares e tablets). 
+      A precisão varia conforme o dispositivo e conexão disponível.
+    </p>
+    <div class="device-indicator">
+      <i class="fas" id="device-icon">📱</i>
+      <span id="device-type">Detectando dispositivo...</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <!-- Painel esquerdo: Controles -->
+    <div class="panel">
+      <h2 class="panel-title">
+        <i class="fas fa-satellite"></i> Obter Localização
+      </h2>
+      
+      <button class="btn-get-location" onclick="obterLocalizacao()" id="btnObter">
+        <span id="btnIcon">📍</span>
+        <span id="btnText">Obter Minha Localização</span>
+        <span class="loader" id="btnLoader" style="display: none;"></span>
+      </button>
+
+      <div class="device-info">
+        <div class="info-card">
+          <div class="info-label">
+            <i class="fas fa-mobile-alt"></i> Tipo de Dispositivo
+          </div>
+          <div class="info-value" id="device-detailed">Detectando...</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">
+            <i class="fas fa-wifi"></i> Método de Localização
+          </div>
+          <div class="info-value" id="location-method">--</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">
+            <i class="fas fa-map-pin"></i> Precisão Esperada
+          </div>
+          <div class="info-value" id="expected-accuracy">--</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">
+            <i class="fas fa-shield-alt"></i> Permissões
+          </div>
+          <div class="info-value" id="permissions-status">Desconhecido</div>
+        </div>
+      </div>
+
+      <div class="accuracy-info">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>Nível de Precisão</strong>
+          <span id="accuracy-value">--</span>
+        </div>
+        <div class="accuracy-meter">
+          <span style="font-size: 0.9rem; color: #666;">Baixa</span>
+          <div class="meter-bar">
+            <div class="meter-fill" id="meterFill"></div>
+          </div>
+          <span style="font-size: 0.9rem; color: #666;">Alta</span>
+        </div>
+        <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+          <i class="fas fa-info-circle"></i> A precisão depende do dispositivo e conexão
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel direito: Resultados -->
+    <div class="panel">
+      <h2 class="panel-title">
+        <i class="fas fa-map-marked-alt"></i> Sua Localização
+      </h2>
+
+      <div class="coordinates-container">
+        <h3 style="color: #1890ff; margin-bottom: 15px;">
+          <i class="fas fa-crosshairs"></i> Coordenadas
+        </h3>
+        
+        <div class="coordinates-display" id="coordinatesDisplay">
+          <div class="coordinate-item">
+            <span>Latitude:</span>
+            <span id="latitude" style="font-weight: 600;">--.--</span>
+          </div>
+          <div class="coordinate-item">
+            <span>Longitude:</span>
+            <span id="longitude" style="font-weight: 600;">--.--</span>
+          </div>
+          <div class="coordinate-item">
+            <span>Precisão:</span>
+            <span id="accuracy">-- metros</span>
+          </div>
+          <div class="coordinate-item">
+            <span>Altitude:</span>
+            <span id="altitude">-- metros</span>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="action-btn btn-copy" onclick="copiarCoordenadas()" id="btnCopy" disabled>
+            <i class="fas fa-copy"></i> Copiar
+          </button>
+          <button class="action-btn btn-share" onclick="compartilharLocalizacao()" id="btnShare" disabled>
+            <i class="fas fa-share-alt"></i> Compartilhar
+          </button>
+          <button class="action-btn btn-email" onclick="enviarPorEmail()" id="btnEmail" disabled>
+            <i class="fas fa-envelope"></i> E-mail
+          </button>
+          <button class="action-btn btn-maps" onclick="abrirNoGoogleMaps()" id="btnMaps" disabled>
+            <i class="fas fa-map"></i> Google Maps
+          </button>
+        </div>
+      </div>
+
+      <div class="map-container" id="mapContainer">
+        <div class="map-placeholder" id="mapPlaceholder">
+          <i class="fas fa-map"></i>
+          <p>Localização será exibida aqui</p>
+          <p style="font-size: 0.8rem; margin-top: 5px;">Clique em "Obter Minha Localização"</p>
+        </div>
+      </div>
+
+      <div id="status" class="status-container">
+        <span class="status-icon">💡</span>
+        <span class="status-text">Pronto para obter localização. Clique no botão acima.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tips-container">
+    <div class="tips-title">
+      <i class="fas fa-lightbulb"></i> Dicas para melhor precisão:
+    </div>
+    <ul class="tips-list">
+      <li><strong>Em celulares:</strong> Ative o GPS e saia para área aberta</li>
+      <li><strong>Em computadores:</strong> Conecte-se a uma rede Wi-Fi conhecida</li>
+      <li><strong>Em tablets:</strong> Use Wi-Fi + GPS para melhor resultado</li>
+      <li><strong>Geral:</strong> Permita o acesso à localização no navegador</li>
+    </ul>
+  </div>
+
+  <footer>
+    <p>📍 Localizador GPS Universal • Funciona em todos os dispositivos • Sem instalação necessária</p>
+    <p style="margin-top: 5px; font-size: 0.8rem;">
+      Precisão: Celulares (1-50m) • Computadores (100-5000m) • Depende da conexão disponível
+    </p>
+  </footer>
+
+  <script>
+    // Detectar tipo de dispositivo
+    function detectarDispositivo() {
+      const userAgent = navigator.userAgent;
+      const deviceIcon = document.getElementById('device-icon');
+      const deviceType = document.getElementById('device-type');
+      const deviceDetailed = document.getElementById('device-detailed');
+      
+      let dispositivo = 'Desktop';
+      let icone = '🖥️';
+      let detalhes = 'Computador/Notebook';
+      
+      if (/mobile|android|iphone|ipad/i.test(userAgent)) {
+        if (/tablet|ipad/i.test(userAgent)) {
+          dispositivo = 'Tablet';
+          icone = '📱';
+          detalhes = 'Tablet';
+        } else {
+          dispositivo = 'Celular';
+          icone = '📱';
+          detalhes = 'Smartphone';
+        }
+      }
+      
+      deviceIcon.className = 'fas';
+      deviceIcon.textContent = icone;
+      deviceType.textContent = dispositivo;
+      deviceDetailed.textContent = detalhes;
+      
+      // Atualizar precisão esperada
+      const expectedAccuracy = document.getElementById('expected-accuracy');
+      if (dispositivo === 'Celular') {
+        expectedAccuracy.textContent = '1-50 metros';
+      } else if (dispositivo === 'Tablet') {
+        expectedAccuracy.textContent = '10-100 metros';
+      } else {
+        expectedAccuracy.textContent = '100-5000 metros';
+      }
+      
+      return dispositivo;
+    }
+
+    // Verificar permissões de geolocalização
+    async function verificarPermissoes() {
+      const permissionsStatus = document.getElementById('permissions-status');
+      
+      if (!navigator.permissions) {
+        permissionsStatus.textContent = 'API não suportada';
+        return;
+      }
+      
+      try {
+        const result = await navigator.permissions.query({ name: 'geolocation' });
+        permissionsStatus.textContent = result.state === 'granted' ? 'Permitido' : 
+                                       result.state === 'prompt' ? 'Solicitar' : 'Negado';
+      } catch (error) {
+        permissionsStatus.textContent = 'Erro na verificação';
+      }
+    }
+
+    // Obter localização
+    function obterLocalizacao() {
+      const btn = document.getElementById('btnObter');
+      const btnText = document.getElementById('btnText');
+      const btnIcon = document.getElementById('btnIcon');
+      const btnLoader = document.getElementById('btnLoader');
+      const status = document.getElementById('status');
+      
+      // Mostrar loading
+      btn.disabled = true;
+      btnText.textContent = 'Obtendo localização...';
+      btnIcon.style.display = 'none';
+      btnLoader.style.display = 'inline-block';
+      
+      atualizarStatus('info', 'Obtendo sua localização... Isso pode levar alguns segundos.');
+      
+      if (!navigator.geolocation) {
+        atualizarStatus('error', 'Geolocalização não é suportada pelo seu navegador.');
+        resetarBotao();
+        return;
+      }
+      
+      // Configurar opções baseadas no dispositivo
+      const dispositivo = detectarDispositivo();
+      const opcoes = {
+        enableHighAccuracy: dispositivo !== 'Desktop', // Alta precisão apenas em mobile
+        timeout: 15000,
+        maximumAge: 0
+      };
+      
+      // Atualizar método de localização
+      document.getElementById('location-method').textContent = 
+        dispositivo !== 'Desktop' ? 'GPS + Wi-Fi + Celular' : 'IP + Wi-Fi';
+      
+      navigator.geolocation.getCurrentPosition(
+        (posicao) => {
+          processarLocalizacao(posicao);
+          resetarBotao();
+        },
+        (erro) => {
+          tratarErroGeolocalizacao(erro);
+          resetarBotao();
+        },
+        opcoes
+      );
+    }
+
+    // Processar localização obtida
+    function processarLocalizacao(posicao) {
+      const { latitude, longitude, accuracy, altitude } = posicao.coords;
+      
+      // Atualizar coordenadas
+      document.getElementById('latitude').textContent = latitude.toFixed(6);
+      document.getElementById('longitude').textContent = longitude.toFixed(6);
+      document.getElementById('accuracy').textContent = `${Math.round(accuracy)} metros`;
+      document.getElementById('altitude').textContent = altitude ? 
+        `${Math.round(altitude)} metros` : 'Não disponível';
+      
+      // Atualizar precisão
+      const accuracyValue = document.getElementById('accuracy-value');
+      const meterFill = document.getElementById('meterFill');
+      
+      accuracyValue.textContent = `${Math.round(accuracy)}m`;
+      
+      // Calcular porcentagem de precisão (inversa: menor accuracy = mais preciso)
+      let precisaoPercentual = 100;
+      if (accuracy < 100) {
+        precisaoPercentual = 95 - (accuracy / 2);
+      } else if (accuracy < 1000) {
+        precisaoPercentual = 80 - (accuracy / 50);
+      } else {
+        precisaoPercentual = 30;
+      }
+      
+      precisaoPercentual = Math.max(10, Math.min(95, precisaoPercentual));
+      meterFill.style.width = `${precisaoPercentual}%`;
+      
+      // Habilitar botões
+      document.getElementById('btnCopy').disabled = false;
+      document.getElementById('btnShare').disabled = false;
+      document.getElementById('btnEmail').disabled = false;
+      document.getElementById('btnMaps').disabled = false;
+      
+      // Atualizar mapa estático
+      atualizarMapaEstatico(latitude, longitude, accuracy);
+      
+      // Atualizar status
+      let mensagemPrecisao = '';
+      if (accuracy < 50) {
+        mensagemPrecisao = 'Precisão excelente!';
+      } else if (accuracy < 200) {
+        mensagemPrecisao = 'Precisão boa.';
+      } else if (accuracy < 1000) {
+        mensagemPrecisao = 'Precisão razoável.';
+      } else {
+        mensagemPrecisao = 'Precisão baixa (localização aproximada).';
+      }
+      
+      atualizarStatus('success', `Localização obtida com sucesso! ${mensagemPrecisao}`);
+    }
+
+    // Atualizar mapa estático (usando OpenStreetMap)
+    function atualizarMapaEstatico(lat, lon, accuracy) {
+      const mapContainer = document.getElementById('mapContainer');
+      const mapPlaceholder = document.getElementById('mapPlaceholder');
+      
+      // Remover placeholder
+      mapPlaceholder.style.display = 'none';
+      
+      // Criar URL do mapa estático do OpenStreetMap
+      const zoom = accuracy < 100 ? 15 : accuracy < 1000 ? 13 : 10;
+      const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01},${lat-0.01},${lon+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lon}`;
+      
+      // Criar iframe com o mapa
+      mapContainer.innerHTML = `
+        <iframe 
+          src="${mapUrl}"
+          style="width: 100%; height: 100%; border: none; border-radius: 10px;"
+          title="Mapa da Localização"
+          allowfullscreen
+        ></iframe>
+        <div class="accuracy-circle" style="
+          width: ${Math.min(200, accuracy * 2)}px;
+          height: ${Math.min(200, accuracy * 2)}px;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        "></div>
+      `;
+    }
+
+    // Tratar erros de geolocalização
+    function tratarErroGeolocalizacao(erro) {
+      let mensagem = '';
+      
+      switch(erro.code) {
+        case 1:
+          mensagem = 'Permissão negada. Por favor, permita o acesso à localização nas configurações do seu navegador.';
+          break;
+        case 2:
+          mensagem = 'Não foi possível obter a localização. Verifique sua conexão com a internet.';
+          break;
+        case 3:
+          mensagem = 'Tempo esgotado. Tente novamente em uma área com melhor sinal.';
+          break;
+        default:
+          mensagem = 'Erro desconhecido ao obter localização.';
+      }
+      
+      atualizarStatus('error', mensagem);
+    }
+
+    // Atualizar status
+    function atualizarStatus(tipo, mensagem) {
+      const status = document.getElementById('status');
+      const icones = {
+        error: '❌',
+        warning: '⚠️',
+        success: '✅',
+        info: '💡'
+      };
+      
+      status.className = `status-container ${tipo}`;
+      status.innerHTML = `<span class="status-icon">${icones[tipo] || '💡'}</span><span class="status-text">${mensagem}</span>`;
+    }
+
+    // Resetar botão
+    function resetarBotao() {
+      const btn = document.getElementById('btnObter');
+      const btnText = document.getElementById('btnText');
+      const btnIcon = document.getElementById('btnIcon');
+      const btnLoader = document.getElementById('btnLoader');
+      
+      btn.disabled = false;
+      btnText.textContent = 'Atualizar Localização';
+      btnIcon.style.display = 'inline';
+      btnLoader.style.display = 'none';
+    }
+
+    // Copiar coordenadas
+    function copiarCoordenadas() {
+      const lat = document.getElementById('latitude').textContent;
+      const lon = document.getElementById('longitude').textContent;
+      const texto = `Latitude: ${lat}\nLongitude: ${lon}`;
+      
+      navigator.clipboard.writeText(texto)
+        .then(() => {
+          atualizarStatus('success', 'Coordenadas copiadas para a área de transferência!');
+        })
+        .catch(() => {
+          atualizarStatus('error', 'Não foi possível copiar as coordenadas.');
+        });
+    }
+
+    // Compartilhar localização
+    function compartilharLocalizacao() {
+      const lat = document.getElementById('latitude').textContent;
+      const lon = document.getElementById('longitude').textContent;
+      const texto = `Minha localização: Latitude ${lat}, Longitude ${lon}`;
+      const url = `https://www.google.com/maps?q=${lat},${lon}`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: 'Minha Localização',
+          text: texto,
+          url: url
+        });
+      } else {
+        // Fallback para desktop
+        navigator.clipboard.writeText(`${texto}\nVer no Google Maps: ${url}`);
+        atualizarStatus('success', 'Link da localização copiado! Cole para compartilhar.');
+      }
+    }
+
+    // Enviar por e-mail
+    function enviarPorEmail() {
+      const lat = document.getElementById('latitude').textContent;
+      const lon = document.getElementById('longitude').textContent;
+      const assunto = 'Minha Localização GPS';
+      const corpo = `Minha localização atual:\n\nLatitude: ${lat}\nLongitude: ${lon}\n\nVer no Google Maps: https://www.google.com/maps?q=${lat},${lon}`;
+      
+      window.location.href = `mailto:?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+    }
+
+    // Abrir no Google Maps
+    function abrirNoGoogleMaps() {
+      const lat = document.getElementById('latitude').textContent;
+      const lon = document.getElementById('longitude').textContent;
+      const url = `https://www.google.com/maps?q=${lat},${lon}`;
+      window.open(url, '_blank');
+    }
+
+    // Inicializar a página
+    document.addEventListener('DOMContentLoaded', function() {
+      // Detectar dispositivo
+      detectarDispositivo();
+      
+      // Verificar permissões
+      verificarPermissoes();
+      
+      // Adicionar evento para testar geolocalização
+      atualizarStatus('info', 'Pronto para obter localização. Funciona em todos os dispositivos!');
+      
+      // Testar se estamos em um ambiente seguro (HTTPS)
+      if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+        atualizarStatus('warning', '⚠️ Para melhor precisão, acesse esta página via HTTPS.');
+      }
+    });
+  </script>
+</body>
+</html>
