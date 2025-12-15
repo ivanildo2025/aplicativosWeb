@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Idade Exata</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .header {
+            background: linear-gradient(to right, #2575fc, #6a11cb);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+        }
+        
+        @media (min-width: 768px) {
+            .content {
+                flex-direction: row;
+                gap: 40px;
+            }
+        }
+        
+        .form-section, .result-section {
+            flex: 1;
+        }
+        
+        .form-section h2, .result-section h2 {
+            color: #2575fc;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .date-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .date-input:focus {
+            border-color: #2575fc;
+            outline: none;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(to right, #2575fc, #6a11cb);
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(37, 117, 252, 0.3);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .age-display {
+            background-color: #f8f9ff;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 20px;
+            border: 2px dashed #2575fc;
+        }
+        
+        .age-number {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+        
+        .age-unit {
+            font-size: 1.5rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .detailed-age {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .age-box {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eaeaea;
+        }
+        
+        .age-box-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #6a11cb;
+        }
+        
+        .age-box-label {
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .today-date {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #eef5ff;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+        
+        .next-birthday {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f0f7ff;
+            border-radius: 10px;
+            border-left: 5px solid #2575fc;
+        }
+        
+        .next-birthday h3 {
+            color: #2575fc;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .birthday-count {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .birthday-date {
+            color: #666;
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+        
+        .zodiac-sign {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff8f0;
+            border-radius: 10px;
+            border-left: 5px solid #ff9a3c;
+        }
+        
+        .zodiac-sign h3 {
+            color: #ff9a3c;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .zodiac-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .zodiac-dates {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .error-message {
+            color: #ff4757;
+            background-color: #ffeaea;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .age-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .age-category {
+            background-color: #f0f7ff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #2575fc;
+            border: 1px solid #d0e2ff;
+        }
+        
+        .highlight {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            font-weight: 600;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .result-placeholder {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+            font-size: 1.1rem;
+        }
+        
+        .result-placeholder i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-birthday-cake"></i> Calculadora de Idade</h1>
+            <p>Descubra sua idade exata em anos, meses e dias</p>
+        </div>
+        
+        <div class="content">
+            <div class="form-section">
+                <h2><i class="fas fa-calendar-alt"></i> Sua Data de Nascimento</h2>
+                
+                <div class="form-group">
+                    <label for="birthdate">Selecione sua data de nascimento:</label>
+                    <input type="date" id="birthdate" class="date-input" max="">
+                </div>
+                
+                <button id="calculateBtn" class="calculate-btn">
+                    <i class="fas fa-calculator"></i> Calcular Idade Exata
+                </button>
+                
+                <div id="errorMessage" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> Por favor, selecione uma data válida (não pode ser no futuro).
+                </div>
+                
+                <div class="today-date">
+                    <i class="fas fa-info-circle"></i> Data de hoje: <span id="currentDate"></span>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <h2><i class="fas fa-chart-bar"></i> Sua Idade Exata</h2>
+                
+                <div id="resultPlaceholder" class="result-placeholder">
+                    <i class="fas fa-user-clock"></i>
+                    <p>Insira sua data de nascimento e clique em "Calcular" para ver seu resultado aqui.</p>
+                </div>
+                
+                <div id="ageResult" style="display: none;">
+                    <div class="age-display">
+                        <div class="age-number" id="ageYears">0</div>
+                        <div class="age-unit">anos</div>
+                        
+                        <div class="detailed-age">
+                            <div class="age-box">
+                                <div class="age-box-value" id="ageMonths">0</div>
+                                <div class="age-box-label">Meses</div>
+                            </div>
+                            <div class="age-box">
+                                <div class="age-box-value" id="ageDays">0</div>
+                                <div class="age-box-label">Dias</div>
+                            </div>
+                            <div class="age-box">
+                                <div class="age-box-value" id="ageTotalDays">0</div>
+                                <div class="age-box-label">Dias totais</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="age-categories">
+                        <div class="age-category" id="ageStage"></div>
+                        <div class="age-category" id="ageGeneration"></div>
+                        <div class="age-category" id="zodiacSeason"></div>
+                    </div>
+                    
+                    <div class="next-birthday">
+                        <h3><i class="fas fa-gift"></i> Próximo Aniversário</h3>
+                        <div class="birthday-count" id="nextBirthdayCount">0 dias</div>
+                        <div class="birthday-date" id="nextBirthdayDate">Data do próximo aniversário</div>
+                    </div>
+                    
+                    <div class="zodiac-sign">
+                        <h3><i class="fas fa-star"></i> Signo do Zodíaco</h3>
+                        <div class="zodiac-name" id="zodiacName">-</div>
+                        <div class="zodiac-dates" id="zodiacDates">Período do signo</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© <span id="currentYear"></span> Calculadora de Idade Exata | Desenvolvido com HTML, CSS e JavaScript</p>
+        </footer>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const birthdateInput = document.getElementById('birthdate');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const currentDateSpan = document.getElementById('currentDate');
+        const currentYearSpan = document.getElementById('currentYear');
+        const resultPlaceholder = document.getElementById('resultPlaceholder');
+        const ageResult = document.getElementById('ageResult');
+        const ageYears = document.getElementById('ageYears');
+        const ageMonths = document.getElementById('ageMonths');
+        const ageDays = document.getElementById('ageDays');
+        const ageTotalDays = document.getElementById('ageTotalDays');
+        const ageStage = document.getElementById('ageStage');
+        const ageGeneration = document.getElementById('ageGeneration');
+        const zodiacSeason = document.getElementById('zodiacSeason');
+        const nextBirthdayCount = document.getElementById('nextBirthdayCount');
+        const nextBirthdayDate = document.getElementById('nextBirthdayDate');
+        const zodiacName = document.getElementById('zodiacName');
+        const zodiacDates = document.getElementById('zodiacDates');
+        
+        // Configurar data máxima (hoje) e mostrar data atual
+        const today = new Date();
+        const todayFormatted = today.toISOString().split('T')[0];
+        birthdateInput.max = todayFormatted;
+        
+        // Formatar e mostrar data atual
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        currentDateSpan.textContent = today.toLocaleDateString('pt-BR', options);
+        currentYearSpan.textContent = today.getFullYear();
+        
+        // Calcular idade ao clicar no botão
+        calculateBtn.addEventListener('click', calculateAge);
+        
+        // Calcular idade ao pressionar Enter no campo de data
+        birthdateInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                calculateAge();
+            }
+        });
+        
+        // Função principal para calcular idade
+        function calculateAge() {
+            const birthdateValue = birthdateInput.value;
+            
+            // Validar entrada
+            if (!birthdateValue) {
+                showError("Por favor, selecione uma data de nascimento.");
+                return;
+            }
+            
+            const birthdate = new Date(birthdateValue);
+            const today = new Date();
+            
+            // Verificar se a data é no futuro
+            if (birthdate > today) {
+                showError("A data de nascimento não pode ser no futuro.");
+                return;
+            }
+            
+            // Esconder mensagem de erro se houver
+            errorMessage.style.display = 'none';
+            
+            // Calcular idade exata
+            const age = calculateExactAge(birthdate, today);
+            
+            // Mostrar resultados
+            displayResults(age, birthdate, today);
+            
+            // Esconder placeholder e mostrar resultados
+            resultPlaceholder.style.display = 'none';
+            ageResult.style.display = 'block';
+        }
+        
+        // Função para calcular idade exata (anos, meses, dias)
+        function calculateExactAge(birthdate, currentDate) {
+            let years = currentDate.getFullYear() - birthdate.getFullYear();
+            let months = currentDate.getMonth() - birthdate.getMonth();
+            let days = currentDate.getDate() - birthdate.getDate();
+            
+            // Ajustar se os dias forem negativos
+            if (days < 0) {
+                // Obter o último dia do mês anterior
+                const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0).getDate();
+                days += lastDayOfMonth;
+                months--;
+            }
+            
+            // Ajustar se os meses forem negativos
+            if (months < 0) {
+                months += 12;
+                years--;
+            }
+            
+            // Calcular total de dias
+            const timeDiff = currentDate.getTime() - birthdate.getTime();
+            const totalDays = Math.floor(timeDiff / (1000 * 3600 * 24));
+            
+            return {
+                years,
+                months,
+                days,
+                totalDays
+            };
+        }
+        
+        // Função para mostrar resultados na tela
+        function displayResults(age, birthdate, today) {
+            // Atualizar valores numéricos
+            ageYears.textContent = age.years;
+            ageMonths.textContent = age.months;
+            ageDays.textContent = age.days;
+            ageTotalDays.textContent = age.totalDays.toLocaleString('pt-BR');
+            
+            // Determinar faixa etária
+            ageStage.textContent = getAgeStage(age.years);
+            ageStage.className = "age-category highlight";
+            
+            // Determinar geração
+            ageGeneration.textContent = getGeneration(birthdate.getFullYear());
+            
+            // Determinar estação do zodíaco
+            zodiacSeason.textContent = getZodiacSeason(birthdate.getMonth());
+            
+            // Calcular próximo aniversário
+            const nextBirthdayInfo = calculateNextBirthday(birthdate, today);
+            nextBirthdayCount.textContent = nextBirthdayInfo.daysUntil + " dias";
+            nextBirthdayDate.textContent = nextBirthdayInfo.dateFormatted;
+            
+            // Determinar signo do zodíaco
+            const zodiacInfo = getZodiacSign(birthdate);
+            zodiacName.textContent = zodiacInfo.name;
+            zodiacDates.textContent = zodiacInfo.dates;
+        }
+        
+        // Função para determinar faixa etária
+        function getAgeStage(years) {
+            if (years < 1) return "Recém-nascido";
+            if (years <= 3) return "Bebê";
+            if (years <= 12) return "Criança";
+            if (years <= 17) return "Adolescente";
+            if (years <= 29) return "Jovem adulto";
+            if (years <= 59) return "Adulto";
+            if (years <= 79) return "Idoso";
+            return "Terceira idade";
+        }
+        
+        // Função para determinar geração
+        function getGeneration(birthYear) {
+            if (birthYear < 1946) return "Geração Silenciosa";
+            if (birthYear <= 1964) return "Baby Boomer";
+            if (birthYear <= 1980) return "Geração X";
+            if (birthYear <= 1996) return "Millennial";
+            if (birthYear <= 2012) return "Geração Z";
+            return "Geração Alpha";
+        }
+        
+        // Função para determinar estação do zodíaco (baseada no mês)
+        function getZodiacSeason(month) {
+            const seasons = [
+                "Inverno ♒", "Inverno ♓", "Primavera ♈", "Primavera ♉",
+                "Primavera ♊", "Verão ♋", "Verão ♌", "Verão ♍",
+                "Outono ♎", "Outono ♏", "Outono ♐", "Inverno ♑"
+            ];
+            return seasons[month];
+        }
+        
+        // Função para calcular próximo aniversário
+        function calculateNextBirthday(birthdate, today) {
+            // Criar data do próximo aniversário
+            const nextBirthday = new Date(today.getFullYear(), birthdate.getMonth(), birthdate.getDate());
+            
+            // Se o aniversário deste ano já passou, usar próximo ano
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(today.getFullYear() + 1);
+            }
+            
+            // Calcular dias até o próximo aniversário
+            const timeDiff = nextBirthday.getTime() - today.getTime();
+            const daysUntil = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            // Formatar data do próximo aniversário
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateFormatted = nextBirthday.toLocaleDateString('pt-BR', options);
+            
+            return {
+                daysUntil,
+                dateFormatted
+            };
+        }
+        
+        // Função para determinar signo do zodíaco
+        function getZodiacSign(birthdate) {
+            const day = birthdate.getDate();
+            const month = birthdate.getMonth() + 1; // Janeiro = 1
+            
+            const zodiacSigns = [
+                { name: "Áries", start: { month: 3, day: 21 }, end: { month: 4, day: 19 } },
+                { name: "Touro", start: { month: 4, day: 20 }, end: { month: 5, day: 20 } },
+                { name: "Gêmeos", start: { month: 5, day: 21 }, end: { month: 6, day: 20 } },
+                { name: "Câncer", start: { month: 6, day: 21 }, end: { month: 7, day: 22 } },
+                { name: "Leão", start: { month: 7, day: 23 }, end: { month: 8, day: 22 } },
+                { name: "Virgem", start: { month: 8, day: 23 }, end: { month: 9, day: 22 } },
+                { name: "Libra", start: { month: 9, day: 23 }, end: { month: 10, day: 22 } },
+                { name: "Escorpião", start: { month: 10, day: 23 }, end: { month: 11, day: 21 } },
+                { name: "Sagitário", start: { month: 11, day: 22 }, end: { month: 12, day: 21 } },
+                { name: "Capricórnio", start: { month: 12, day: 22 }, end: { month: 1, day: 19 } },
+                { name: "Aquário", start: { month: 1, day: 20 }, end: { month: 2, day: 18 } },
+                { name: "Peixes", start: { month: 2, day: 19 }, end: { month: 3, day: 20 } }
+            ];
+            
+            for (const sign of zodiacSigns) {
+                const startDate = new Date(birthdate.getFullYear(), sign.start.month - 1, sign.start.day);
+                const endDate = new Date(birthdate.getFullYear(), sign.end.month - 1, sign.end.day);
+                
+                // Ajustar para Capricórnio que cruza o ano
+                if (sign.start.month > sign.end.month) {
+                    endDate.setFullYear(endDate.getFullYear() + 1);
+                }
+                
+                const checkDate = new Date(birthdate.getFullYear(), month - 1, day);
+                
+                if (checkDate >= startDate && checkDate <= endDate) {
+                    // Formatar período do signo
+                    const startFormatted = `${sign.start.day}/${sign.start.month}`;
+                    const endFormatted = `${sign.end.day}/${sign.end.month}`;
+                    return {
+                        name: sign.name,
+                        dates: `${startFormatted} a ${endFormatted}`
+                    };
+                }
+            }
+            
+            return { name: "Não identificado", dates: "" };
+        }
+        
+        // Função para mostrar mensagem de erro
+        function showError(message) {
+            errorMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            errorMessage.style.display = 'block';
+            resultPlaceholder.style.display = 'block';
+            ageResult.style.display = 'none';
+        }
+        
+        // Preencher automaticamente com uma data de exemplo (opcional)
+        window.addEventListener('DOMContentLoaded', function() {
+            // Definir uma data de exemplo (15 de maio de 1990)
+            const exampleDate = new Date(1990, 4, 15); // Mês é 0-indexed (0 = janeiro)
+            const exampleDateFormatted = exampleDate.toISOString().split('T')[0];
+            birthdateInput.value = exampleDateFormatted;
+            
+            // Calcular automaticamente com a data de exemplo
+            setTimeout(calculateAge, 500);
+        });
+    </script>
+</body>
+</html>
