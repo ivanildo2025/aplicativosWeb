@@ -1,1 +1,542 @@
-hello
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ferramentas Online Úteis</title>
+  <style>
+    /* Reset e configurações gerais */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f7ff;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    /* Cabeçalho */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      margin-bottom: 30px;
+      background: linear-gradient(135deg, #1a73e8, #4a90e2);
+      color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-content {
+      flex-grow: 1;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    
+    .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    .back-button {
+      background-color: white;
+      color: #1a73e8;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .back-button:hover {
+      background-color: #e8f0fe;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Conteúdo principal */
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+    
+    /* Cards de ferramentas */
+    .tool-card {
+      background-color: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      width: 350px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .tool-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+    
+    .tool-card.featured {
+      border: 3px solid #1a73e8;
+      transform: scale(1.03);
+    }
+    
+    .tool-header {
+      padding: 25px;
+      background: linear-gradient(135deg, var(--tool-color), color-mix(in srgb, var(--tool-color) 80%, black));
+      color: white;
+      text-align: center;
+      position: relative;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .tool-icon {
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      margin-bottom: 20px;
+      font-size: 2rem;
+    }
+    
+    .tool-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .tool-status {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #1a73e8;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .tool-body {
+      padding: 25px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .tool-description {
+      color: #666;
+      margin-bottom: 20px;
+      flex-grow: 1;
+      line-height: 1.7;
+    }
+    
+    .tool-features {
+      list-style: none;
+      margin-bottom: 25px;
+    }
+    
+    .tool-features li {
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      color: #555;
+      position: relative;
+      padding-left: 25px;
+    }
+    
+    .tool-features li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #1a73e8;
+      font-weight: bold;
+    }
+    
+    .tool-footer {
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: center;
+    }
+    
+    .tool-link {
+      background-color: #1a73e8;
+      color: white;
+      text-decoration: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+    }
+    
+    .tool-link:hover {
+      background-color: #0d62d9;
+      box-shadow: 0 6px 15px rgba(26, 115, 232, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .tool-link.disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .tool-link.disabled:hover {
+      background-color: #ccc;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    /* Contador de ferramentas */
+    .tools-count {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.2rem;
+      color: #666;
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .highlight {
+      color: #1a73e8;
+      font-weight: 600;
+    }
+    
+    /* Rodapé */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      color: #777;
+      font-size: 0.9rem;
+    }
+    
+    /* Anúncio para novas ferramentas */
+    .new-tool-announcement {
+      background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 30px 0;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+    }
+    
+    .new-tool-announcement h3 {
+      margin-bottom: 10px;
+      font-size: 1.4rem;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .tool-card {
+        width: 100%;
+        max-width: 400px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 15px;
+      }
+      
+      h1 {
+        font-size: 1.7rem;
+      }
+      
+      .tool-header {
+        min-height: 160px;
+      }
+      
+      .tool-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.7rem;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Ferramentas Online</h1>
+      <p class="subtitle">Coleção de ferramentas web úteis e gratuitas</p>
+    </div>
+    <a href="/" class="back-button">
+      <i class="fas fa-arrow-left"></i> Voltar para a lista principal
+    </a>
+  </header>
+  
+  <div class="tools-count">
+    Atualmente disponíveis: <span class="highlight" id="total-tools">3</span> ferramentas online
+  </div>
+  
+  <main id="tools-container">
+    <!-- As ferramentas serão carregadas aqui via JavaScript -->
+  </main>
+  
+  <div class="new-tool-announcement">
+    <h3><i class="fas fa-lightbulb"></i> Deseja sugerir uma nova ferramenta?</h3>
+    <p>Entre em contato para sugerir ferramentas online que você gostaria de ver adicionadas aqui.</p>
+  </div>
+  
+  <footer>
+    <p>Ferramentas online gratuitas • Atualizado em <span id="current-year">2024</span></p>
+    <p style="margin-top: 5px; font-size: 0.8rem;">Todas as ferramentas funcionam diretamente no seu navegador, sem necessidade de instalação</p>
+  </footer>
+
+  <script>
+    // Dados das ferramentas disponíveis
+    const tools = [
+      {
+        id: 1,
+        title: "Calculadora de Idade",
+        description: "Calcule a idade exata a partir da data de nascimento. Descubra quantos anos, meses, semanas e dias você tem de forma precisa e detalhada.",
+        icon: "fas fa-birthday-cake",
+        link: "#", // Link para a calculadora de idade
+        tags: ["utilidade", "cálculo"],
+        color: "#4CAF50",
+        features: [
+          "Calcula anos, meses e dias",
+          "Mostra idade em diferentes unidades",
+          "Cálculo preciso considerando anos bissextos",
+          "Interface simples e intuitiva"
+        ],
+        status: "Disponível",
+        featured: true
+      },
+      {
+        id: 2,
+        title: "GPS e Localização",
+        description: "Obtenha suas coordenadas geográficas atuais e visualize sua localização em um mapa interativo. Funciona em dispositivos com suporte a geolocalização.",
+        icon: "fas fa-map-marker-alt",
+        link: "#", // Link para o GPS
+        tags: ["localização", "mapa"],
+        color: "#2196F3",
+        features: [
+          "Mostra latitude e longitude",
+          "Visualização em mapa",
+          "Precisão em metros",
+          "Compartilhamento de localização"
+        ],
+        status: "Disponível",
+        featured: true
+      },
+      {
+        id: 3,
+        title: "Criador de QR Code",
+        description: "Gere QR Codes personalizados para URLs, textos, números de telefone, Wi-Fi e muito mais. Personalize cores e tamanhos.",
+        icon: "fas fa-qrcode",
+        link: "#", // Link para o criador de QR code
+        tags: ["qr code", "gerador"],
+        color: "#9C27B0",
+        features: [
+          "Geração instantânea de QR Codes",
+          "Diversos tipos de conteúdo",
+          "Personalização de cores",
+          "Download em alta resolução"
+        ],
+        status: "Disponível",
+        featured: true
+      }
+    ];
+
+    // Elementos DOM
+    const toolsContainer = document.getElementById('tools-container');
+    const totalToolsElement = document.getElementById('total-tools');
+
+    // Função para renderizar ferramentas
+    function renderTools() {
+      toolsContainer.innerHTML = '';
+      
+      tools.forEach(tool => {
+        const toolElement = document.createElement('div');
+        toolElement.className = `tool-card ${tool.featured ? 'featured' : ''}`;
+        toolElement.style.setProperty('--tool-color', tool.color);
+        
+        toolElement.innerHTML = `
+          <div class="tool-header">
+            <div class="tool-icon">
+              <i class="${tool.icon}"></i>
+            </div>
+            <h3 class="tool-title">${tool.title}</h3>
+            <div class="tool-status">${tool.status}</div>
+          </div>
+          <div class="tool-body">
+            <p class="tool-description">${tool.description}</p>
+            
+            <ul class="tool-features">
+              ${tool.features.map(feature => `<li>${feature}</li>`).join('')}
+            </ul>
+            
+            <div class="tool-tags" style="margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap;">
+              ${tool.tags.map(tag => `<span style="background-color: #f0f0f0; color: #666; padding: 4px 10px; border-radius: 15px; font-size: 0.8rem;">${tag}</span>`).join('')}
+            </div>
+          </div>
+          <div class="tool-footer">
+            <a href="${tool.link}" class="tool-link" onclick="event.preventDefault(); openTool(${tool.id});">
+              <i class="fas fa-external-link-alt"></i> Abrir Ferramenta
+            </a>
+          </div>
+        `;
+        
+        toolsContainer.appendChild(toolElement);
+      });
+      
+      // Atualizar contador
+      totalToolsElement.textContent = tools.length;
+    }
+
+    // Função para simular a abertura de ferramentas
+    function openTool(toolId) {
+      const tool = tools.find(t => t.id === toolId);
+      
+      // Aqui você pode substituir pelos links reais das suas ferramentas
+      const toolLinks = {
+        1: "/calculadora-idade.html", // Link para calculadora de idade
+        2: "/gps.html", // Link para GPS
+        3: "/qr-code.html" // Link para criador de QR code
+      };
+      
+      if (toolLinks[toolId]) {
+        // Em um cenário real, redirecionaria para a página da ferramenta
+        const useRealLinks = false; // Mude para true quando tiver os links reais
+        
+        if (useRealLinks) {
+          window.location.href = toolLinks[toolId];
+        } else {
+          // Simulação: mostrar informações sobre a ferramenta
+          alert(`Abrindo: ${tool.title}\n\nEsta ferramenta estará disponível em breve.\n\nURL da ferramenta: ${toolLinks[toolId]}`);
+          
+          // Simular uma página de ferramenta simples
+          if (toolId === 1) {
+            openAgeCalculator();
+          } else if (toolId === 2) {
+            openGPS();
+          } else if (toolId === 3) {
+            openQRCodeGenerator();
+          }
+        }
+      } else {
+        alert(`Ferramenta "${tool.title}" está em desenvolvimento.`);
+      }
+    }
+
+    // Simuladores das ferramentas (para demonstração)
+    function openAgeCalculator() {
+      const birthDate = prompt("Para testar a Calculadora de Idade, digite sua data de nascimento (DD/MM/AAAA):", "01/01/1990");
+      
+      if (birthDate) {
+        const today = new Date();
+        const birth = new Date(birthDate.split('/').reverse().join('-'));
+        const age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        
+        let ageText = age + " anos";
+        if (monthDiff < 0) {
+          ageText = (age - 1) + " anos";
+        }
+        
+        alert(`Data de nascimento: ${birthDate}\nIdade aproximada: ${ageText}\n\nEsta é uma simulação da ferramenta. A versão completa terá cálculo preciso.`);
+      }
+    }
+    
+    function openGPS() {
+      if (navigator.geolocation) {
+        alert("Solicitando sua localização...\n\nNa ferramenta completa, você verá:\n1. Suas coordenadas (latitude e longitude)\n2. Um mapa interativo\n3. Opções para compartilhar localização\n\nClique em 'Permitir' se solicitado.");
+        
+        // Simulação de coordenadas (em produção, usaríamos navigator.geolocation.getCurrentPosition)
+        setTimeout(() => {
+          alert("Localização obtida com sucesso!\n\nCoordenadas aproximadas:\nLatitude: -23.5505\nLongitude: -46.6333\n\n(Estas são coordenadas de exemplo. A ferramenta real mostrará sua localização exata.)");
+        }, 1500);
+      } else {
+        alert("Seu navegador não suporta geolocalização. A ferramenta GPS requer um navegador moderno.");
+      }
+    }
+    
+    function openQRCodeGenerator() {
+      const text = prompt("Digite o texto ou URL para gerar o QR Code:", "https://exemplo.com");
+      
+      if (text) {
+        // Simulação de geração de QR Code
+        alert(`QR Code gerado para:\n"${text}"\n\nNa ferramenta completa, você poderá:\n1. Visualizar o QR Code gerado\n2. Personalizar cores e tamanho\n3. Fazer download da imagem\n4. Compartilhar o QR Code`);
+        
+        // Simulação de visualização de QR Code
+        const qrWindow = window.open("", "QR Code", "width=400,height=500");
+        if (qrWindow) {
+          qrWindow.document.write(`
+            <html>
+              <head><title>QR Code Gerado</title></head>
+              <body style="font-family: Arial; text-align: center; padding: 20px;">
+                <h2>QR Code Gerado</h2>
+                <p>Conteúdo: <strong>${text}</strong></p>
+                <div style="background-color: #f0f0f0; padding: 20px; display: inline-block; margin: 20px;">
+                  <div style="font-size: 24px; color: #333;">[QR Code]</div>
+                  <div style="margin-top: 10px; font-size: 12px;">Simulação de QR Code</div>
+                </div>
+                <p>Na ferramenta real, aqui estaria o QR Code gerado.</p>
+                <button onclick="window.close()" style="padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 5px; cursor: pointer;">Fechar</button>
+              </body>
+            </html>
+          `);
+        }
+      }
+    }
+
+    // Inicializar a página
+    document.addEventListener('DOMContentLoaded', function() {
+      renderTools();
+      
+      // Adicionar o ano atual no rodapé
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+    });
+  </script>
+  
+  <!-- Script do Cloudflare (mantido do original) -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9ae74c07bc147f14","version":"2025.9.1","r":1,"token":"1f070e2f4baa45f0849d15986511249b","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}}}' crossorigin="anonymous"></script>
+</body>
+</html>
